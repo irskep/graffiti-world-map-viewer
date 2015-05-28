@@ -1,0 +1,88 @@
+<html>
+<head>
+  <link rel="stylesheet" href="leaflet.css">
+  <script src="underscore.js"></script>
+  <script src="leaflet-0.4.5.min.js"></script>
+</head>
+<body>
+<script>
+  var CRSDirect = L.Util.extend({}, L.CRS, {
+    projection: L.Projection.LonLat,
+    transformation: new L.Transformation(1, 0, 1, 0)
+  });
+
+  var MIN_SCALE = 1/256;
+  var MAX_SCALE = 1/32;
+
+  var createZoomCalculator = function() {
+    var lg = function(x) { return Math.log(x) / Math.log(2); };
+
+    var maxZoom = lg(1 / MAX_SCALE) - lg(1 / MIN_SCALE);
+
+    return {
+      getMinZoom: function() { return 0; },
+      getMaxZoom: function() { return maxZoom; },
+      zoomToScale: function(zoom) {
+        return MIN_SCALE / Math.pow(2, maxZoom - zoom);
+      },
+      scaleToZoom: function(scale) {
+        return maxZoom - lg(MIN_SCALE / scale);
+      }
+    };
+  }
+
+  var zoomCalculator = createZoomCalculator(MIN_SCALE, MAX_SCALE);
+
+  var urlTemplate = _.template(
+    "<%= worldId %>/<%= 1 / scale %>/<%= tilePoint.x * 512 / scale %>_<%= tilePoint.y * 512 / scale %>.png");
+
+  var TileLayer = L.TileLayer.extend({
+    getTileUrl: function(tilePoint) {
+      urlTemplate({
+        scale: 1/32,
+        tilePoint: tilePoint,
+        minScale: MIN_SCALE,
+        maxScale: MAX_SCALE
+      });
+    }
+  });
+
+  var tileLayer = new TileLayer(null, {
+    continuousWorld: true,
+    detectRetina: false,
+    tileSize: 512
+  });
+
+  var el = document.createElement('div');
+  document.body.appendChild(el);
+  var leaflet = new L.Map(el, {
+    minZoom: zoomCalculator.getMinZoom(),
+    maxZoom: zoomCalculator.getMaxZoom(),
+    crs: CRSDirect,
+    //fadeAnimation: false,
+    zoomAnimation: false,
+    attributionControl: false,
+    worldCopyJump: false,
+    continuousWorld: true,
+    inertia: false,
+
+    doubleClickZoom: false,
+    zoomControl: false,
+    scrollWheelZoom: false
+  });
+
+  leaflet.addLayer(new TileLayer({
+    worldId: '5260eb8ead155b0c1fdc9f7a',
+    minScale: MIN_SCALE,
+    maxScale: MAX_SCALE,
+    rect: {
+      xmin: -19200,
+      ymin: -19200,
+      xmax: 19200,
+      ymax: 19200
+    }
+  }));
+
+</script>
+</body>
+</html>
