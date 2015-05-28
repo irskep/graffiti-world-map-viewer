@@ -20,8 +20,6 @@
     crs: L.CRS.Simple
   }).setView([0, 0], 0);
 
-  //var urlTemplate = WORLD_ID + "/{z}/{x}_{y}.png";
-
   var urlTemplate = _.template("<%= urlPrefix %><%= worldId %>/<%= 1 / scale %>/<%= x * tileSize / scale %>_<%= y * tileSize / scale %>.png");
 
   var MyTileLayer = L.TileLayer.extend({
