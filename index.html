@@ -11,7 +11,9 @@
 <body>
 <div id="map"></div>
 <script>
-  var WORLD_ID = '5260eb8ead155b0c1fdc9f7a';
+  var URL_PREFIX = 'images/'; // Ted probably change this
+  var WORLD_ID = location.hash.substring(1);
+
   var map = L.map('map', {
     minZoom: -3,
     maxZoom: 0,
@@ -20,7 +22,7 @@
 
   //var urlTemplate = WORLD_ID + "/{z}/{x}_{y}.png";
 
-  var urlTemplate = _.template("<%= worldId %>/<%= 1 / scale %>/<%= x * tileSize / scale %>_<%= y * tileSize / scale %>.png");
+  var urlTemplate = _.template("<%= urlPrefix %><%= worldId %>/<%= 1 / scale %>/<%= x * tileSize / scale %>_<%= y * tileSize / scale %>.png");
 
   var MyTileLayer = L.TileLayer.extend({
     getTileUrl: function (coords) {
@@ -34,11 +36,17 @@
         "-2": 1/128,
         "-3": 1/256,
         "-4": 1/512,
-        "-5": 1/1024
+        "-5": 1/1024,
+        "-6": 1/2048,
+        "-7": 1/4096,
+        "-8": 1/8192
       }[z];
 
       return urlTemplate({
-        x: x, y: y, scale: scale, worldId: WORLD_ID, tileSize: this._tileSize
+        x: x, y: y, scale: scale,
+        worldId: WORLD_ID,
+        tileSize: this._tileSize,
+        urlPrefix: URL_PREFIX
       });
     },
   })
@@ -48,6 +56,7 @@
     maxZoom: 0,
     continuousWorld: true,
     noWrap: true,
+    errorTileUrl: 'error.png',
     tileSize: 600
   }).addTo(map);
 

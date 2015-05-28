@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-mkdir -p $1
-aws s3 sync s3://graffiti-world-tiles/tiles/$1/rolling $1
